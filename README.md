@@ -4,6 +4,18 @@ A dedicated Python Streamlit application showcasing advanced AI architectural de
 
 **Live Demo**: [https://google-cloud-ai-studio-1099058340933.us-central1.run.app](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
 
+![Live Prod](https://img.shields.io/badge/readiness-live--prod-brightgreen.svg)
+
+## Production Readiness
+
+**Level: Live Prod**
+
+This application is deployed and running in production on Google Cloud Run:
+- **Live deployment** accessible at public URL
+- **Multi-step GenAI pipeline** (text enhancement → sketch → render)
+- **Cloud-native architecture** with Docker containerization
+- **Vertex AI integration** using modern google-genai SDK
+
 ## 🎯 Project Goals
 - **Advanced GenAI Workflow**: Implement a multi-step generation pipeline (Text -> Sketch -> Render).
 - **Cloud Native**: Built specifically for Google Cloud Run with Vertex AI integration.
@@ -105,7 +117,21 @@ A dedicated Python Streamlit application showcasing advanced AI architectural de
 | `MODEL_TEXT` | Model for text enhancement | gemini-2.0-flash-lite |
 | `MODEL_IMAGE` | Model for image generation | gemini-2.5-flash-image |
 
----
-**Author**: Adityo Nugroho
-- **Portfolio**: [adityonugrohoid.github.io](https://adityonugrohoid.github.io/)
-- **Email**: [adityo.nugroho.id@gmail.com](mailto:adityo.nugroho.id@gmail.com)
+## Notable Code
+
+This repository demonstrates cloud-native GenAI application patterns. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
+
+- Multi-step GenAI pipeline orchestration
+- Cloud Run deployment configuration
+- Vertex AI integration with modern SDK
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Author
+
+**Adityo Nugroho**  
+- Portfolio: https://adityonugrohoid.github.io  
+- GitHub: https://github.com/adityonugrohoid  
+- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
