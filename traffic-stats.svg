@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120">
+  <rect width="400" height="120" fill="#0d1117" rx="6"/>
+  <text x="20" y="30" fill="#58a6ff" font-family="Arial" font-size="16" font-weight="bold">
+    📊 Repository Traffic (Last 14 Days)
+  </text>
+  <text x="30" y="60" fill="#c9d1d9" font-family="Arial" font-size="14">
+    🔄 Clones: 93 total (43 unique)
+  </text>
+  <text x="30" y="85" fill="#c9d1d9" font-family="Arial" font-size="14">
+    👁️ Views: 43 total (12 unique)
+  </text>
+  <text x="30" y="108" fill="#8b949e" font-family="Arial" font-size="10">
+    Updated: 1/26/2026
+  </text>
+</svg>
