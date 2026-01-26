@@ -1,25 +1,17 @@
 # Google Cloud AI Studio (Streamlit Edition)
 
-A dedicated Python Streamlit application showcasing advanced AI architectural design workflows using Google Vertex AI. This project serves as a comprehensive demonstration of full-stack GenAI application development on Google Cloud.
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Live Deployed](https://img.shields.io/badge/status-live--deployed-brightgreen.svg)
 
-**Live Demo**: [https://google-cloud-ai-studio-1099058340933.us-central1.run.app](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
+A Python-based Streamlit application showcasing advanced AI-driven architectural design workflows powered by Google Vertex AI. This project demonstrates end-to-end GenAI application development on Google Cloud.
 
-![Live Prod](https://img.shields.io/badge/readiness-live--prod-brightgreen.svg)
-
-## Production Readiness
-
-**Level: Live Prod**
-
-This application is deployed and running in production on Google Cloud Run:
-- **Live deployment** accessible at public URL
-- **Multi-step GenAI pipeline** (text enhancement → sketch → render)
-- **Cloud-native architecture** with Docker containerization
-- **Vertex AI integration** using modern google-genai SDK
+**Deployed on Google Cloud Run**: [https://google-cloud-ai-studio-1099058340933.us-central1.run.app](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
 
 ## 🎯 Project Goals
 - **Advanced GenAI Workflow**: Implement a multi-step generation pipeline (Text -> Sketch -> Render).
 - **Cloud Native**: Built specifically for Google Cloud Run with Vertex AI integration.
-- **Proof of Concept**: A functional demonstration of advanced GenAI orchestration within the Google Cloud ecosystem.
+- **Production (Live/Deployed)**: A functional demonstration of advanced GenAI orchestration within the Google Cloud ecosystem, deployed and accessible at the live URL.
 
 ## 🌊 Workflow
 1.  **Text Enhancement**: `gemini-2.0-flash-lite` expands simple descriptions.
@@ -109,6 +101,18 @@ This application is deployed and running in production on Google Cloud Run:
       --region $env:GOOGLE_CLOUD_REGION
     ```
 
+3.  **One-Liner (Alternative - if env vars are already set)**
+
+    **Windows (PowerShell):**
+    ```powershell
+    gcloud builds submit --tag gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio && gcloud run deploy google-cloud-ai-studio --image gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio --platform managed --allow-unauthenticated --region $env:GOOGLE_CLOUD_REGION
+    ```
+
+    **Linux / Mac (Bash):**
+    ```bash
+    gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio && gcloud run deploy google-cloud-ai-studio --image gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio --platform managed --allow-unauthenticated --region $GOOGLE_CLOUD_REGION
+    ```
+
 ## 🧩 Environment Variables
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -135,3 +139,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - Portfolio: https://adityonugrohoid.github.io  
 - GitHub: https://github.com/adityonugrohoid  
 - LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
+
+## 📈 Repository Stats
+   
+   ![Traffic Stats](./traffic-stats.svg)

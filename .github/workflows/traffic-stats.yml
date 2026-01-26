@@ -1,0 +1,86 @@
+name: Update Traffic Stats
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REPO_STATS_PAT }}   # use PAT to allow push
+
+      - name: Fetch traffic data
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.REPO_STATS_PAT }}  # use PAT for traffic API
+          script: |
+            const fs = require('fs');
+            
+            // Fetch clone data
+            const clones = await github.rest.repos.getClones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per: 'day'
+            });
+            
+            // Fetch view data
+            const views = await github.rest.repos.getViews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per: 'day'
+            });
+            
+            const stats = {
+              updated_at: new Date().toISOString(),
+              clones: {
+                total: clones.data.count,
+                unique: clones.data.uniques,
+                daily: clones.data.clones
+              },
+              views: {
+                total: views.data.count,
+                unique: views.data.uniques,
+                daily: views.data.views
+              }
+            };
+            
+            fs.writeFileSync('traffic-stats.json', JSON.stringify(stats, null, 2));
+            
+            const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="400" height="120">
+              <rect width="400" height="120" fill="#0d1117" rx="6"/>
+              <text x="20" y="30" fill="#58a6ff" font-family="Arial" font-size="16" font-weight="bold">
+                📊 Repository Traffic (Last 14 Days)
+              </text>
+              <text x="30" y="60" fill="#c9d1d9" font-family="Arial" font-size="14">
+                🔄 Clones: ${stats.clones.total} total (${stats.clones.unique} unique)
+              </text>
+              <text x="30" y="85" fill="#c9d1d9" font-family="Arial" font-size="14">
+                👁️ Views: ${stats.views.total} total (${stats.views.unique} unique)
+              </text>
+              <text x="30" y="108" fill="#8b949e" font-family="Arial" font-size="10">
+                Updated: ${new Date(stats.updated_at).toLocaleDateString()}
+              </text>
+            </svg>
+            `.trim();
+            
+            fs.writeFileSync('traffic-stats.svg', svg);
+            console.log('Stats updated successfully!');
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add traffic-stats.json traffic-stats.svg
+          git diff --staged --quiet || git commit -m "Update traffic stats [skip ci]"
+          git push
+
+      

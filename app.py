@@ -228,7 +228,7 @@ if generate_btn:
         st.session_state.step1_text = step1_enhance_prompt(base_prompt)
         if st.session_state.step1_text:
             st.write(f"**Enhanced Brief:** {st.session_state.step1_text}")
-            status.update(label="Brief Enhanced!", state="complete", expanded=False)
+            status.update(label="Brief Enhanced!", state="complete", expanded=True)
         else:
             status.update(label="Step 1 Failed", state="error")
             st.stop()
@@ -240,7 +240,7 @@ if generate_btn:
              # Convert to PIL for display
             img = Image.open(io.BytesIO(st.session_state.step2_image))
             st.image(img, caption="GenAI Sketch", width="stretch")
-            status.update(label="Sketch Generated!", state="complete", expanded=False)
+            status.update(label="Sketch Generated!", state="complete", expanded=True)
         else:
             status.update(label="Step 2 Failed", state="error")
             st.stop()
@@ -251,7 +251,7 @@ if generate_btn:
         if st.session_state.step3_image:
             img_final = Image.open(io.BytesIO(st.session_state.step3_image))
             st.image(img_final, caption="Final Render", width="stretch")
-            status.update(label="Render Complete!", state="complete", expanded=False)
+            status.update(label="Render Complete!", state="complete", expanded=True)
         else:
             status.update(label="Step 3 Failed", state="error")
 

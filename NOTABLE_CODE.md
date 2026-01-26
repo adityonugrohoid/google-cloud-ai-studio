@@ -1,7 +1,5 @@
 # Notable Code: Google Cloud AI Studio
 
-**Production Readiness Level:** Live Prod
-
 This document highlights key code sections that demonstrate the technical strengths and architectural patterns implemented in this cloud-native GenAI application.
 
 ## Overview
