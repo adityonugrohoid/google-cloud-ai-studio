@@ -1,13 +1,13 @@
 <div align="center">
 
-# Google Cloud AI Studio (Streamlit Edition)
+# Google Cloud AI Studio
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B.svg)](https://streamlit.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Cloud Run](https://img.shields.io/badge/Cloud%20Run-deployed-4285F4.svg)](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
+[![Cloud Run](https://img.shields.io/badge/Deployed-Cloud%20Run-4285F4.svg)](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
 
-**Generative interior design app: 3-stage Gemini pipeline (text enhance -> sketch -> photorealistic render) on Cloud Run**
+**Generative interior design app: 3-stage Gemini pipeline (prompt rewrite -> sketch -> photorealistic render) on Cloud Run**
 
 [Getting Started](#getting-started) | [Usage](#usage) | [Architecture](#architecture)
 
