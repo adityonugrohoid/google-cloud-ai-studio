@@ -1,145 +1,239 @@
+<div align="center">
+
 # Google Cloud AI Studio (Streamlit Edition)
 
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Live Deployed](https://img.shields.io/badge/status-live--deployed-brightgreen.svg)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B.svg)](https://streamlit.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Cloud Run](https://img.shields.io/badge/Cloud%20Run-deployed-4285F4.svg)](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
 
-A Python-based Streamlit application showcasing advanced AI-driven architectural design workflows powered by Google Vertex AI. This project demonstrates end-to-end GenAI application development on Google Cloud.
+**Generative interior design app: 3-stage Gemini pipeline (text enhance -> sketch -> photorealistic render) on Cloud Run**
 
-**Deployed on Google Cloud Run**: [https://google-cloud-ai-studio-1099058340933.us-central1.run.app](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
+[Getting Started](#getting-started) | [Usage](#usage) | [Architecture](#architecture)
 
-## 🎯 Project Goals
-- **Advanced GenAI Workflow**: Implement a multi-step generation pipeline (Text -> Sketch -> Render).
-- **Cloud Native**: Built specifically for Google Cloud Run with Vertex AI integration.
-- **Production (Live/Deployed)**: A functional demonstration of advanced GenAI orchestration within the Google Cloud ecosystem, deployed and accessible at the live URL.
+</div>
 
-## 🌊 Workflow
-1.  **Text Enhancement**: `gemini-2.0-flash-lite` expands simple descriptions.
-2.  **Sketch Generation**: `gemini-2.5-flash-image` creates architectural line drawings.
-3.  **Photorealistic Rendering**: `gemini-2.5-flash-image` transforms sketches into V-Ray style renders.
+---
 
-## 🛠️ Tech Stack
--   **Frontend**: Streamlit
--   **AI SDK**: Google Gen AI SDK (`google-genai`)
--   **Container**: Docker (Debian Slim)
--   **Deployment**: Google Cloud Run
+## Table of Contents
 
-## 🚀 Local Development
+- [The Problem](#the-problem)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Usage](#usage)
+- [How It Works](#how-it-works)
+- [Architectural Decisions](#architectural-decisions)
+- [Project Structure](#project-structure)
+- [Deployment](#deployment)
+- [Related Projects](#related-projects)
+- [License](#license)
+- [Author](#author)
 
-1.  **Clone & Navigate**
-    ```bash
-    cd google-cloud-ai-studio
-    ```
+## The Problem
 
-2.  **Install Dependencies**
-    Using [uv](https://github.com/astral-sh/uv):
-    ```bash
-    uv sync
-    ```
+### Bridging Design Intent and Visual Output
 
-3.  **Configuration**
-    Set up your Google Cloud credentials.
+Describing a room design in text rarely produces a useful visual result with a single model call. Prompt nuance gets lost, spatial relationships are vague, and the jump from words to photorealistic imagery is too large for one inference step.
 
-    **Linux / Mac (Bash):**
-    ```bash
-    export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
-    export GOOGLE_CLOUD_REGION="us-central1"
-    gcloud auth application-default login
+### The Solution
 
-    # Verify configuration
-    echo "Project: $GOOGLE_CLOUD_PROJECT"
-    echo "Region: $GOOGLE_CLOUD_REGION"
-    ```
+A chained 3-stage Gemini pipeline separates concerns: a lightweight text model sharpens the brief first, then an image model generates a line-sketch with spatial structure, then a second image-model pass renders that sketch into a photorealistic archviz output. Each stage produces a visible intermediate result in the Streamlit UI.
 
-    **Windows (PowerShell):**
-    ```powershell
-    $env:GOOGLE_CLOUD_PROJECT = $(gcloud config get-value project)
-    $env:GOOGLE_CLOUD_REGION = "us-central1"
-    gcloud auth application-default login
+## Features
 
-    # Verify configuration
-    echo "Project: $env:GOOGLE_CLOUD_PROJECT"
-    echo "Region: $env:GOOGLE_CLOUD_REGION"
-    ```
+- **3-stage generative pipeline** - text enhancement, architectural sketch, and photorealistic render as discrete steps with visible intermediates
+- **Dual-model orchestration** - `gemini-2.0-flash-lite` for text, `gemini-2.5-flash-image` for both image stages, each tuned to its task
+- **Vertex AI ADC auth** - no API keys in code; works locally via `gcloud auth application-default login` and on Cloud Run via the attached service account
+- **Configurable model selection** - override `MODEL_TEXT` and `MODEL_IMAGE` env vars without touching source code
+- **Streamlit live status** - connection health indicator on page load; per-step progress with Streamlit's `st.status` widget
+- **Docker + Cloud Run deployment** - single `Dockerfile` with uv for fast installs, deployed to the managed Cloud Run URL
 
-4.  **Run Application**
-    ```bash
-    uv run streamlit run app.py
-    ```
+## Tech Stack
 
-## ☁️ Cloud Run Deployment
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.12+ |
+| Package manager | uv |
+| Frontend | Streamlit 1.30+ |
+| Text model | gemini-2.0-flash-lite |
+| Image model | gemini-2.5-flash-image |
+| AI SDK | google-genai 1.0+ |
+| Container | Docker (python:3.12-slim) |
+| Cloud | Google Cloud Run (us-central1) |
 
-1.  **Build**
-    
-    **Linux / Mac (Bash):**
-    ```bash
-    gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio
-    ```
+## Architecture
 
-    **Windows (PowerShell):**
-    ```powershell
-    gcloud builds submit --tag gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio
-    ```
+```mermaid
+graph TD
+    A["User Input\n(room type, style,\nmaterial, palette)"] --> B["Step 1: Text Enhancement\ngemini-2.0-flash-lite\n~20-word brief"]
+    B --> C["Step 2: Sketch Generation\ngemini-2.5-flash-image\nB&W line drawing"]
+    C --> D["Step 3: Photorealistic Render\ngemini-2.5-flash-image\nmultimodal: text + sketch"]
+    D --> E["Streamlit UI\nstep-by-step display"]
 
-2.  **Deploy**
+    F["Vertex AI Client\n(ADC via gcloud or\nCloud Run service account)"] --> B
+    F --> C
+    F --> D
 
-    **Linux / Mac (Bash):**
-    ```bash
-    gcloud run deploy google-cloud-ai-studio \
-      --image gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio \
-      --platform managed \
-      --allow-unauthenticated \
-      --region $GOOGLE_CLOUD_REGION
-    ```
+    style A fill:#0f3460,color:#fff
+    style B fill:#16213e,color:#fff
+    style C fill:#16213e,color:#fff
+    style D fill:#16213e,color:#fff
+    style E fill:#533483,color:#fff
+    style F fill:#0f3460,color:#fff
+```
 
-    **Windows (PowerShell):**
-    ```powershell
-    gcloud run deploy google-cloud-ai-studio `
-      --image gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio `
-      --platform managed `
-      --allow-unauthenticated `
-      --region $env:GOOGLE_CLOUD_REGION
-    ```
+## Getting Started
 
-3.  **One-Liner (Alternative - if env vars are already set)**
+### Prerequisites
 
-    **Windows (PowerShell):**
-    ```powershell
-    gcloud builds submit --tag gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio && gcloud run deploy google-cloud-ai-studio --image gcr.io/$env:GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio --platform managed --allow-unauthenticated --region $env:GOOGLE_CLOUD_REGION
-    ```
+- Python 3.12+
+- [uv](https://github.com/astral-sh/uv) package manager
+- Google Cloud project with Vertex AI API enabled
+- `gcloud` CLI authenticated (`gcloud auth application-default login`)
 
-    **Linux / Mac (Bash):**
-    ```bash
-    gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio && gcloud run deploy google-cloud-ai-studio --image gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio --platform managed --allow-unauthenticated --region $GOOGLE_CLOUD_REGION
-    ```
+### Installation
 
-## 🧩 Environment Variables
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GOOGLE_CLOUD_PROJECT` | GCP Project ID | - |
-| `GOOGLE_CLOUD_REGION` | Vertex AI Region | us-central1 |
-| `MODEL_TEXT` | Model for text enhancement | gemini-2.0-flash-lite |
-| `MODEL_IMAGE` | Model for image generation | gemini-2.5-flash-image |
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/adityonugrohoid/google-cloud-ai-studio.git
+   cd google-cloud-ai-studio
+   ```
 
-## Notable Code
+2. Install dependencies with uv:
+   ```bash
+   uv sync
+   ```
 
-This repository demonstrates cloud-native GenAI application patterns. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
+### Configuration
 
-- Multi-step GenAI pipeline orchestration
-- Cloud Run deployment configuration
-- Vertex AI integration with modern SDK
+Set the required environment variables before running:
+
+```bash
+export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
+export GOOGLE_CLOUD_REGION="us-central1"
+```
+
+Optional overrides (defaults shown):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOOGLE_CLOUD_PROJECT` | - | GCP project ID (required) |
+| `GOOGLE_CLOUD_REGION` | `us-central1` | Vertex AI region |
+| `MODEL_TEXT` | `gemini-2.0-flash-lite` | Model for step 1 text enhancement |
+| `MODEL_IMAGE` | `gemini-2.5-flash-image` | Model for steps 2 and 3 image generation |
+
+## Usage
+
+```bash
+uv run streamlit run app.py
+```
+
+Open `http://localhost:8501` in your browser. Select room type, design style, material, and color palette, then click "Generate Design". The app shows each pipeline step as it completes.
+
+**Live deployment:** [https://google-cloud-ai-studio-1099058340933.us-central1.run.app](https://google-cloud-ai-studio-1099058340933.us-central1.run.app)
+
+## How It Works
+
+### Step 1 - Text Enhancement
+
+`step1_enhance_prompt()` calls `gemini-2.0-flash-lite` with a strict prompt to expand the user's structured inputs into a concise 1-2 sentence design brief (capped at 20 words, `max_output_tokens=50`). The tight constraint prevents verbose output that would confuse the image stages.
+
+### Step 2 - Architectural Sketch
+
+`step2_generate_sketch()` calls `gemini-2.5-flash-image` with explicit constraints for a pure black-and-white line drawing: no shading, no color, no grayscale. The structured prompt enforces perspective and furniture layout. The response is parsed by iterating `response.candidates[0].content.parts` to extract the `inline_data` image bytes.
+
+### Step 3 - Photorealistic Render
+
+`step3_generate_render()` sends a multimodal request to `gemini-2.5-flash-image`: the render style prompt plus the sketch bytes as a `Part(inline_data=...)` object. The model uses the sketch's spatial structure as reference geometry for ray-traced lighting, realistic textures, and lens effects. `temperature=0.0` keeps the output deterministic.
+
+## Architectural Decisions
+
+### 1. Vertex AI ADC over direct API key
+
+**Decision:** The client is always initialized via `genai.Client(vertexai=True, project=..., location=...)`, relying entirely on Application Default Credentials.
+
+**Reasoning:** Cloud Run attaches a service account automatically, so the same code path works both locally (via `gcloud auth application-default login`) and in production without injecting secrets. No API key rotation, no secret manager wiring.
+
+### 2. uv in Docker for dependency installs
+
+**Decision:** The Dockerfile copies the `uv` binary from `ghcr.io/astral-sh/uv:latest` and runs `uv pip install --system .` rather than using pip directly.
+
+**Reasoning:** uv resolves and installs the locked dependency set significantly faster than pip in cold-build scenarios, which matters for Cloud Build turnaround time. The `--system` flag avoids creating a venv layer inside the container.
+
+### 3. Three discrete model calls rather than a single multimodal prompt
+
+**Decision:** Text enhancement, sketch generation, and render are three separate API calls rather than a single complex prompt.
+
+**Reasoning:** Each model call has a narrowly scoped task and explicit output constraints. Chaining lets each stage validate its output before proceeding, surfaces failures at the right step, and lets the Streamlit UI show real intermediates instead of a single opaque wait.
+
+## Project Structure
+
+```
+google-cloud-ai-studio/
+├── app.py                         # Single-file Streamlit application (all 3 pipeline stages)
+├── Dockerfile                     # python:3.12-slim + uv, exposes port 8080
+├── pyproject.toml                 # Project metadata and dependencies
+├── uv.lock                        # Pinned dependency lockfile
+└── LICENSE
+```
+
+## Deployment
+
+### Local Development
+
+```bash
+export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
+export GOOGLE_CLOUD_REGION="us-central1"
+gcloud auth application-default login
+uv run streamlit run app.py
+```
+
+### Docker (local)
+
+```bash
+docker build -t google-cloud-ai-studio .
+docker run -p 8080:8080 \
+  -e GOOGLE_CLOUD_PROJECT=your-project-id \
+  -e GOOGLE_CLOUD_REGION=us-central1 \
+  -v ~/.config/gcloud:/root/.config/gcloud:ro \
+  google-cloud-ai-studio
+```
+
+### Google Cloud Run
+
+Build and push to Container Registry:
+
+```bash
+gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio
+```
+
+Deploy to Cloud Run:
+
+```bash
+gcloud run deploy google-cloud-ai-studio \
+  --image gcr.io/$GOOGLE_CLOUD_PROJECT/google-cloud-ai-studio \
+  --platform managed \
+  --allow-unauthenticated \
+  --region $GOOGLE_CLOUD_REGION
+```
+
+The deployed service uses the Cloud Run service account for Vertex AI ADC auth - no additional secret configuration required.
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [google-ai-studio](https://github.com/adityonugrohoid/google-ai-studio) | TypeScript/Next.js sibling - same 3-stage pipeline via Google AI SDK, deployed on Vercel instead of Cloud Run |
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 
-**Adityo Nugroho**  
-- Portfolio: https://adityonugrohoid.github.io  
-- GitHub: https://github.com/adityonugrohoid  
-- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
-
-## 📈 Repository Stats
-   
-   ![Traffic Stats](./traffic-stats.svg)
+**Adityo Nugroho** ([@adityonugrohoid](https://github.com/adityonugrohoid))
